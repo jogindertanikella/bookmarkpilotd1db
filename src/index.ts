@@ -14,23 +14,41 @@ interface TweetEntry {
   tag?: string;
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // ← You can also restrict to "https://bookmarkpilot.com"
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
 
+    // Handle CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
     if (pathname === "/api/discover" && request.method === "GET") {
       try {
-        const { results } = await env.DB.prepare(
-          "SELECT * FROM bookmarks ORDER BY id DESC"
-        ).all();
+        const { results } = await env.DB
+          .prepare("SELECT * FROM bookmarks ORDER BY id DESC")
+          .all();
 
         return new Response(JSON.stringify(results), {
-          headers: { "Content-Type": "application/json" }
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
         });
       } catch (err) {
         return new Response(
           JSON.stringify({ error: "Failed to fetch bookmarks." }),
-          { status: 500, headers: { "Content-Type": "application/json" } }
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          }
         );
       }
     }
@@ -68,16 +86,22 @@ export default {
 
         return new Response(
           JSON.stringify({ success: true, count: batch.length }),
-          { headers: { "Content-Type": "application/json" } }
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          }
         );
       } catch (err) {
         return new Response(
           JSON.stringify({ error: "Invalid or malformed request." }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          }
         );
       }
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response("Not Found", { status: 404, headers: corsHeaders });
   }
 };
