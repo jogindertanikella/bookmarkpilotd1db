@@ -76,6 +76,54 @@ export default {
       }
     }
 
+    // GET /discoverfull
+if (pathname === "/discoverfull" && request.method === "GET") {
+  try {
+    const { results } = await env.DB
+      .prepare("SELECT * FROM bookmarks ORDER BY id DESC")
+      .all();
+
+    // Construct HTML content from results
+    const html = results.map(entry => `
+      <div class='tile'>
+        <img src='${entry.avatar || ''}' alt='Profile Picture' class='profile-pic'>
+        <div class='profile-info'>
+          <span class='name'>${entry.title || ''}</span>
+          <br><a href='${entry.url || '#'}' target='_blank' class='handle'>@${entry.title || ''}</a>
+        </div>
+        <div class='tweet-text'>${entry.text || ''}</div>
+        <br>
+        <div class='action-container'>
+          <a class='btn btn-primary btn-sm view-tweet-btn' target='_blank' href='${entry.url || '#'}'>View Tweet</a>
+        </div>
+      </div>
+    `).join("");
+
+    const payload = {
+      NumberOfTweets: `${results.length.toLocaleString()} Tweets`,
+      NumberOfUploads: `${(results.length * 1.5).toLocaleString()} Uploads`, // or fetch actual uploads if tracked separately
+      HTMLContent: `<div class='tilesContainer'>${html}</div>`
+    };
+
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json"
+      }
+    });
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      }
+    );
+  }
+}
+
+
     // POST /contribute
     if (pathname === "/contribute" && request.method === "POST") {
       try {
