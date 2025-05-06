@@ -1,14 +1,13 @@
--- Migration number: 0001 	 2024-12-27T22:04:18.794Z
-CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY NOT NULL,
-    author TEXT NOT NULL,
-    content TEXT NOT NULL
+-- Migration: Create bookmarks table
+CREATE TABLE IF NOT EXISTS bookmarks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  url TEXT NOT NULL,
+  timestamp TEXT,
+  avatar TEXT,
+  title TEXT,
+  text TEXT,
+  image TEXT,
+  video TEXT,
+  platform TEXT,
+  tag TEXT
 );
-
--- Insert some sample data into our comments table.
-INSERT INTO comments (author, content)
-VALUES
-    ('Kristian', 'Congrats!'),
-    ('Serena', 'Great job!'),
-    ('Max', 'Keep up the good work!')
-;
