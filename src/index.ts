@@ -15,7 +15,7 @@ interface TweetEntry {
 }
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // ← You can also restrict to "https://bookmarkpilot.com"
+  "Access-Control-Allow-Origin": "*", // Optionally replace with specific domain
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type"
 };
@@ -29,11 +29,34 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    // GET /api/discover
     if (pathname === "/api/discover" && request.method === "GET") {
       try {
         const { results } = await env.DB
           .prepare("SELECT * FROM bookmarks ORDER BY id DESC")
           .all();
+
+        // If no results, return a default row with empty fields to show column headers
+        if (results.length === 0) {
+          const emptyRow: TweetEntry = {
+            url: "",
+            timestamp: "",
+            avatar: "",
+            title: "",
+            text: "",
+            image: "",
+            video: "",
+            platform: "",
+            tag: ""
+          };
+          return new Response(JSON.stringify([emptyRow]), {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json"
+            }
+          });
+        }
 
         return new Response(JSON.stringify(results), {
           status: 200,
@@ -53,6 +76,7 @@ export default {
       }
     }
 
+    // POST /api/contribute
     if (pathname === "/api/contribute" && request.method === "POST") {
       try {
         const payload = await request.json();
@@ -102,6 +126,7 @@ export default {
       }
     }
 
+    // Fallback for unknown routes
     return new Response("Not Found", { status: 404, headers: corsHeaders });
   }
 };
