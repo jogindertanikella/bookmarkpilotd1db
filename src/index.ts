@@ -29,8 +29,8 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    // GET /api/discover
-    if (pathname === "/api/discover" && request.method === "GET") {
+    // GET /discover
+    if (pathname === "/discover" && request.method === "GET") {
       try {
         const { results } = await env.DB
           .prepare("SELECT * FROM bookmarks ORDER BY id DESC")
@@ -76,8 +76,8 @@ export default {
       }
     }
 
-    // POST /api/contribute
-    if (pathname === "/api/contribute" && request.method === "POST") {
+    // POST /contribute
+    if (pathname === "/contribute" && request.method === "POST") {
       try {
         const payload = await request.json();
         const entries: TweetEntry[] = Array.isArray(payload)
