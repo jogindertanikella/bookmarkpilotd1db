@@ -5,4 +5,4 @@ compatibility_date = "2024-05-06"
 [[d1_databases]]
 binding = "DB"
 database_name = "BookmarkPilotD1DB" # ✅ change this if your DB name is different
-database_id = "auto"                # or use actual ID from Cloudflare dashboard
+database_id = "7adbecac-399b-4ae0-a33f-020835078df4"         
